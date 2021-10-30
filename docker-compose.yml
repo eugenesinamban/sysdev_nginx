@@ -7,6 +7,7 @@ services:
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
       - ./public/:/var/www/public/
+      - image:/var/www/public/image/
     depends_on:
       - php
 
@@ -18,6 +19,7 @@ services:
     image: php:8.0-fpm-alpine
     volumes:
       - ./public/:/var/www/public/
+      - image:/var/www/public/image/
   
   mysql:
     container_name: mysql
@@ -28,6 +30,8 @@ services:
       TZ: Asia/Tokyo
     volumes:
       - mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
     command: >
       mysqld
       --character-set-server=utf8mb4
@@ -36,4 +40,6 @@ services:
 
 volumes:
   mysql:
+    driver: local
+  image:
     driver: local
