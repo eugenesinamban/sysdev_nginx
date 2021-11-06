@@ -2,10 +2,8 @@
 require_once(__DIR__ . '/Db.php');
 
 class UserRepository {
-    // public function __construct() {
 
-    // }
-    protected $table_name = 'koki02_users';
+    protected $table_name = 'users';
 
     protected function data_store() {
         return Db::getHandle();

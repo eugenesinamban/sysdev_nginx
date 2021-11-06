@@ -1,36 +1,30 @@
 <?php
 // DBに接続
 require_once('./libs/UserRepository.php');
+require_once('./libs/AuthService.php');
 $UserRepository = new UserRepository();
+$AuthService = new AuthService($UserRepository);
 
 if (!empty($_POST['email']) && !empty($_POST['password'])) {
   // POSTで email と password が送られてきた場合のみログイン処理をする
+  try {
+    $user = $AuthService->login($_POST['email'], $_POST['password']);
 
-  // email から会員情報を引く
-  $user = $UserRepository->find_by_email($_POST['email']);
-  if (empty($user)) {
-    // 入力されたメールアドレスに該当する会員が見つからなければ、処理を中断しエラー用クエリパラメータ付きのログイン画面URLにリダイレクト
+    session_start();
+    // セッションにログインできた会員情報の主キー(id)を設定
+    $_SESSION["login_user_id"] = $user['id'];
+    
+    // ログインが成功したらログイン完了画面にリダイレクト
+    header("HTTP/1.1 302 Found");
+    header("Location: ./login_finish.php");
+    return;
+
+  } catch (Exception $e) {
     header("HTTP/1.1 302 Found");
     header("Location: ./login.php?error=1");
     return;
   }
 
-  // パスワードが正しいかチェック
-  if (!password_verify($_POST['password'], $user['password'])) {
-    // パスワードが間違っていれば、処理を中断しエラー用クエリパラメータ付きのログイン画面URLにリダイレクト
-    header("HTTP/1.1 302 Found");
-    header("Location: ./login.php?error=1");
-    return;
-  }
-
-  session_start();
-  // セッションにログインできた会員情報の主キー(id)を設定
-  $_SESSION["login_user_id"] = $user['id'];
-  
-  // ログインが成功したらログイン完了画面にリダイレクト
-  header("HTTP/1.1 302 Found");
-  header("Location: ./login_finish.php");
-  return;
 }
 ?>
 

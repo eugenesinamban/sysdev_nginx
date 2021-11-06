@@ -1,31 +1,23 @@
 <?php
 // DBに接続
 require_once('./libs/UserRepository.php');
+require_once('./libs/AuthService.php');
 
 $UserRepository = new UserRepository();
+$AuthService = new AuthService($UserRepository);
 
 if (!empty($_POST['name']) && !empty($_POST['email']) && !empty($_POST['password'])) {
   // POSTで name と email と password が送られてきた場合はDBへの登録処理をする
-
-  // 既に同じメールアドレスで登録された会員が存在しないか確認する
-  $user = $UserRepository->find_by_email($_POST['email']);
-
-  if (!empty($user)) {
-    // 存在した場合 エラー用のクエリパラメータ付き会員登録画面にリダイレクトする
+  try {
+    $AuthService->signup($_POST['name'], $_POST['email'], $_POST['password']);
+    header("HTTP/1.1 302 Found");
+    header("Location: ./signup_finish.php");
+    return;
+  } catch (Exception $e) {
     header("HTTP/1.1 302 Found");
     header("Location: ./signup.php?duplicate_email=1");
     return;
   }
-
-  $password_hash = password_hash($_POST['password'], PASSWORD_DEFAULT);
-
-  // insertする
-  $UserRepository->add_user($_POST['name'], $_POST['email'], $password_hash);
-
-  // 処理が終わったら完了画面にリダイレクト
-  header("HTTP/1.1 302 Found");
-  header("Location: ./signup_finish.php");
-  return;
 }
 ?>
 
