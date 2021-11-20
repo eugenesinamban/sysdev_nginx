@@ -21,7 +21,7 @@ if (!empty($_POST['email']) && !empty($_POST['password'])) {
 
   } catch (Exception $e) {
     header("HTTP/1.1 302 Found");
-    header("Location: ./login.php?error=1");
+    header("Location: /login.php?error=1");
     return;
   }
 
@@ -51,3 +51,5 @@ if (!empty($_POST['email']) && !empty($_POST['password'])) {
   メールアドレスかパスワードが間違っています。
 </div>
 <?php endif; ?>
+
+会員登録は<a href="./signup.php">こちら</a>

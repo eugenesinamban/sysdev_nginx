@@ -3,8 +3,7 @@
 require_once('./libs/UserRepository.php');
 require_once('./libs/AuthService.php');
 
-$UserRepository = new UserRepository();
-$AuthService = new AuthService($UserRepository);
+$AuthService = new AuthService(new UserRepository());
 
 if (!empty($_POST['name']) && !empty($_POST['email']) && !empty($_POST['password'])) {
   // POSTで name と email と password が送られてきた場合はDBへの登録処理をする
@@ -49,3 +48,5 @@ if (!empty($_POST['name']) && !empty($_POST['email']) && !empty($_POST['password
   入力されたメールアドレスは既に使われています。
 </div>
 <?php endif; ?>
+
+ログインは<a href="/login.php">こちら</a><br>

@@ -1,21 +1,17 @@
 <?php
 session_start();
+require_once(__DIR__ . '/libs/UserService.php');
+require_once(__DIR__ . '/libs/UserRepository.php');
 
 if (empty($_SESSION['login_user_id'])) {
   header("HTTP/1.1 302 Found");
-  header("Location: ./login.php");
+  header("Location: /login.php");
   return;
 }
 
+$UserService = new UserService(new UserRepository());
+$user = $UserService->find_by_id($_SESSION['login_user_id']);
 
-// DBに接続
-$dbh = new PDO('mysql:host=mysql;dbname=techc', 'root', '');
-// セッションにあるログインIDから、ログインしている対象の会員情報を引く
-$select_sth = $dbh->prepare("SELECT * FROM koki02_users WHERE id = :id");
-$select_sth->execute([
-    ':id' => $_SESSION['login_user_id'],
-]);
-$user = $select_sth->fetch();
 ?>
 
 <h1>ログイン完了</h1>
