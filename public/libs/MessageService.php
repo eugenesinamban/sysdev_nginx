@@ -18,4 +18,11 @@ class MessageService {
         }
         return $this->MessageRepository->get_user_messages($user_id);
     }
+
+    public function get_user_and_following_user_messages(int $user_id) {
+        if (empty($user_id)) {
+            throw new Exception('Invalid values passed!');
+        }
+        return $this->MessageRepository->get_user_and_following_user_messages($user_id);
+    }
 }

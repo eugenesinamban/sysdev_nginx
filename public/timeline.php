@@ -1,39 +1,40 @@
 <?php
-require_once(__DIR__ . "/libs/MessageService.php");
-require_once(__DIR__ . "/libs/ImageService.php");
 require_once(__DIR__ . "/libs/UserService.php");
 require_once(__DIR__ . "/libs/UserRepository.php");
-require_once(__DIR__ . "/libs/MessageRepository.php");
+require_once(__DIR__ . '/libs/MessageRepository.php');
+require_once(__DIR__ . '/libs/MessageService.php');
+require_once(__DIR__ . "/libs/ImageService.php");
 
 $UserService = new UserService(new UserRepository());
 $MessageService = new MessageService(new MessageRepository());
 $ImageService = new ImageService();
 
 session_start();
-$user = $UserService->find_by_id($_SESSION['login_user_id']);
 
-if (isset($_POST['body']) && !empty($_SESSION['login_user_id'])) {
-  // POSTで送られてくるフォームパラメータ body がある かつ ログイン状態 の場合
-  
-  $image_filename = null;
-  if (!empty($_POST['image_base64'])) {
-    $image_filename = $ImageService->upload($_POST['image_base64']);
-    header("HTTP/1.1 302 Found");
-    header("Location: ./icon.php");
-    return;
-  }
-
-  // insertする
-  $MessageService->create_message($user['id'], $_POST['body'], $image_filename);
+if (empty($_SESSION['login_user_id'])) { // 非ログインの場合利用不可
   header("HTTP/1.1 302 Found");
-  header("Location: ./truther.php");
+  header("Location: /login.php");
   return;
 }
+$user = $UserService->find_by_id($_SESSION['login_user_id']);
+if (isset($_POST['body']) && !empty($_SESSION['login_user_id'])) {
+    // POSTで送られてくるフォームパラメータ body がある かつ ログイン状態 の場合
+    
+    $image_filename = null;
+    if (!empty($_POST['image_base64'])) {
+      $image_filename = $ImageService->upload($_POST['image_base64']);
+      header("HTTP/1.1 302 Found");
+      header("Location: ./icon.php");
+      return;
+    }
+  
+    // insertする
+    $MessageService->create_message($user['id'], $_POST['body'], $image_filename);
+    header("HTTP/1.1 302 Found");
+    header("Location: ./truther.php");
+    return;
+}
 
-
-// 投稿データを取得。紐づく会員情報も結合し同時に取得する。
-$messages = $MessageService->get_all_messages_with_users();
-// bodyのHTMLを出力するための関数を用意する
 function bodyFilter (string $body): string
 {
     $body = htmlspecialchars($body); // エスケープ処理
@@ -45,14 +46,15 @@ function bodyFilter (string $body): string
 
     return $body;
 }
-?>
 
+$select_sth = $MessageService->get_user_and_following_user_messages($user['id']);
+?>
 <?php if(empty($_SESSION['login_user_id'])): ?>
   投稿するには<a href="/login.php">ログイン</a>が必要です。
 <?php else: ?>
-  <?= $user['name']?>,おかえりなさい！ (<a href="/setting/index.php">設定画面はこちら</a>)
+  現在ログイン中 (<a href="/setting/index.php">設定画面はこちら</a>)
   <!-- フォームのPOST先はこのファイル自身にする -->
-  <form method="POST" action="./truther.php"><!-- enctypeは外しておきましょう -->
+  <form method="POST" action="./timeline.php"><!-- enctypeは外しておきましょう -->
     <textarea name="body" required></textarea>
     <div style="margin: 1em 0;">
       <input type="file" accept="image/*" name="image" id="imageInput">
@@ -64,7 +66,7 @@ function bodyFilter (string $body): string
 <?php endif; ?>
 <hr>
 
-<?php foreach($messages as $entry): ?>
+<?php foreach($select_sth as $entry): ?>
   <dl style="margin-bottom: 1em; padding-bottom: 1em; border-bottom: 1px solid #ccc;">
     <dt id="entry<?= htmlspecialchars($entry['id']) ?>">
       番号
@@ -75,12 +77,17 @@ function bodyFilter (string $body): string
     <dt>
       投稿者
     </dt>
-    <a href="/profile.php?user_id=<?=$entry['user_id']?>">
-      <dd>
-        <?= htmlspecialchars($entry['username']) ?>
+    <dd>
+      <a href="/profile.php?user_id=<?= $entry['user_id'] ?>">
+        <?php if(!empty($entry['icon_filename'])): // アイコン画像がある場合は表示 ?>
+        <img src="/image/<?= $entry['icon_filename'] ?>"
+          style="height: 2em; width: 2em; border-radius: 50%; object-fit: cover;">
+        <?php endif; ?>
+
+        <?= htmlspecialchars($entry['user_name']) ?>
         (ID: <?= htmlspecialchars($entry['user_id']) ?>)
-      </dd>
-    </a>
+      </a>
+    </dd>
     <dt>日時</dt>
     <dd><?= $entry['created_at'] ?></dd>
     <dt>内容</dt>

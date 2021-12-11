@@ -3,12 +3,20 @@ require_once(__DIR__ . '/libs/UserRepository.php');
 require_once(__DIR__ . '/libs/UserService.php');
 require_once(__DIR__ . '/libs/MessageRepository.php');
 require_once(__DIR__ . '/libs/MessageService.php');
+require_once(__DIR__ . '/libs/FollowRepository.php');
+require_once(__DIR__ . '/libs/FollowService.php');
 $UserService = new UserService(new UserRepository());
 $MessageService = new MessageService(new MessageRepository());
-
+$FollowService = new FollowService(new FollowRepository());
+session_start();
+$logged_in_user = null;
 $user = null;
 if (!empty($_GET['user_id'])) {
     $user = $UserService->find_by_id($_GET['user_id']);
+}
+
+if (!empty($_SESSION['login_user_id'])) {
+  $logged_in_user = $UserService->find_by_id($_SESSION['login_user_id']);
 }
 
 if (empty($user)) {
@@ -36,16 +44,31 @@ $messages = $MessageService->get_user_messages($user['id']);
   <?php endif; ?>
 </div>
 <div>
-  生年月日：<?= htmlspecialchars($user['birthday']) ?><br>
-
-  <?php 
+  <?php if(empty($user['birthday'])): ?>
+    現在未設定
+  <?php else: ?>
+    生年月日：<?= htmlspecialchars($user['birthday']) ?><br>
+    
+    <?php 
     $birthday = DateTime::createFromFormat('Y-m-d', $user['birthday']);
     $today = new DateTime('now');
-  ?>
-  <?= $today->diff($birthday)->y ?>歳
+    ?>
+    <?= $today->diff($birthday)->y ?>歳
+  <?php endif; ?>
 </div>
 <div>
   自己紹介：<?= nl2br(htmlspecialchars($user['introduction'])) ?>
+</div>
+<div>
+  <?php if (!empty($logged_in_user)): ?>
+    <?php if ($logged_in_user['id'] === $user['id']): ?>
+      <!-- do nothing -->
+    <?php elseif (!$FollowService->is_following($logged_in_user['id'], $user['id'])): ?>
+      <a href="/follow.php?followee_id=<?=$user['id'] ?>"><button>フォローする</button></a>
+    <?php elseif ($FollowService->is_following($logged_in_user['id'], $user['id'])): ?>
+        フォロー中
+    <?php endif; ?>
+  <?php endif; ?>
 </div>
 
 <hr>

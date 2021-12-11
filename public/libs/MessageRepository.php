@@ -40,4 +40,20 @@ class MessageRepository {
         ]);
         return $sth->fetchAll(\PDO::FETCH_ASSOC);
     }
+
+    public function get_user_and_following_user_messages($user_id) {
+        $dbh = $this->data_store();
+
+        $sth = $dbh->prepare("SELECT mb.*, u.name as user_name, u.id as user_id 
+        FROM message_board as mb left join users as u on u.id = mb.user_id 
+        WHERE u.id in 
+        (select followee_id from follow_relationship where follower_id = :user_id_1) or u.id = :user_id_2;");
+
+        $sth->execute([
+            ':user_id_1' => $user_id,
+            ':user_id_2' => $user_id,
+        ]);
+
+        return $sth->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }
