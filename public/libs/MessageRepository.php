@@ -2,7 +2,7 @@
 require_once(__DIR__ . '/Db.php');
 
 class MessageRepository {
-    protected $table_name = 'message_board';
+    protected $table_name = 'messages';
 
     protected function data_store() {
         return Db::getHandle();
@@ -22,7 +22,7 @@ class MessageRepository {
     public function get_all_messages_with_users() {
         $dbh = $this->data_store();
 
-        $sth = $dbh->prepare("SELECT mb.*, u.name AS username FROM $this->table_name AS mb INNER JOIN users AS u ON mb.user_id = u.id ORDER BY mb.created_at DESC;");
+        $sth = $dbh->prepare("SELECT m.*, u.name AS username FROM $this->table_name AS m INNER JOIN users AS u ON m.user_id = u.id ORDER BY m.created_at DESC;");
         $sth->execute();
         return $sth->fetchAll(\PDO::FETCH_ASSOC);
     }
@@ -30,10 +30,10 @@ class MessageRepository {
     public function get_user_messages(int $user_id) {
         $dbh = $this->data_store();
 
-        $sth = $dbh->prepare("SELECT mb.*, users.name AS user_name, users.icon_filename AS user_icon_filename
-                                FROM message_board as mb INNER JOIN users on mb.user_id = users.id
+        $sth = $dbh->prepare("SELECT m.*, users.name AS user_name, users.icon_filename AS user_icon_filename
+                                FROM messages as m INNER JOIN users on m.user_id = users.id
                                 WHERE user_id = :user_id
-                                ORDER BY mb.created_at DESC
+                                ORDER BY m.created_at DESC
         ");
         $sth->execute([
             ':user_id' => $user_id,
@@ -44,8 +44,8 @@ class MessageRepository {
     public function get_user_and_following_user_messages($user_id) {
         $dbh = $this->data_store();
 
-        $sth = $dbh->prepare("SELECT mb.*, u.name as user_name, u.id as user_id 
-        FROM message_board as mb left join users as u on u.id = mb.user_id 
+        $sth = $dbh->prepare("SELECT m.*, u.name as user_name, u.id as user_id 
+        FROM messages as m left join users as u on u.id = m.user_id 
         WHERE u.id in 
         (select followee_id from follow_relationship where follower_id = :user_id_1) or u.id = :user_id_2;");
 

@@ -33,6 +33,7 @@ $messages = $MessageService->get_user_messages($user['id']);
     style="height: 15em; width: 100%; object-fit: cover;">
 <?php endif ?>
 
+<a href="/timeline.php">タイムラインに戻る</a>
 <h1><?= htmlspecialchars($user['name']) ?> さん のプロフィール</h1>
 
 <div>

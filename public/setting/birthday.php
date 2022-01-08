@@ -20,7 +20,7 @@ if (isset($_POST['birthday'])) {
     return;
 }
 ?>
-
+<a href="./index.php">設定一覧に戻る</a>
 <h1>生年月日</h1>
 
 <form method="POST">

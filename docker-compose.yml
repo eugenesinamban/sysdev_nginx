@@ -3,7 +3,7 @@ services:
   nginx:
     image: nginx:latest
     ports:
-      - 80:80
+      - 8070:80
     volumes:
       - ./nginx/conf.d/:/etc/nginx/conf.d/
       - ./public/:/var/www/public/
@@ -16,7 +16,6 @@ services:
     build:
       context: .
       target: php
-    image: php:8.0-fpm-alpine
     volumes:
       - ./public/:/var/www/public/
       - image:/var/www/public/image/
@@ -31,7 +30,7 @@ services:
     volumes:
       - mysql:/var/lib/mysql
     ports:
-      - 3306:3306
+      - 3307:3306
     command: >
       mysqld
       --character-set-server=utf8mb4

@@ -24,7 +24,7 @@ if (isset($_POST['name'])) {
   return;
 }
 ?>
-
+<a href="./index.php">設定一覧に戻る</a>
 <h1>名前変更</h1>
 <form method="POST">
   <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>">

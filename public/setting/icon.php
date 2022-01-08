@@ -25,7 +25,7 @@ if (isset($_POST['image_base64'])) {
 }
 
 ?>
-
+<a href="./index.php">設定一覧に戻る</a>
 <h1>アイコン</h1>
 
 <div>

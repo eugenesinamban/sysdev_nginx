@@ -1,38 +1,14 @@
 <?php
 require_once(__DIR__ . "/libs/MessageService.php");
-require_once(__DIR__ . "/libs/ImageService.php");
-require_once(__DIR__ . "/libs/UserService.php");
-require_once(__DIR__ . "/libs/UserRepository.php");
 require_once(__DIR__ . "/libs/MessageRepository.php");
 
-$UserService = new UserService(new UserRepository());
 $MessageService = new MessageService(new MessageRepository());
-$ImageService = new ImageService();
 
 session_start();
-$user = $UserService->find_by_id($_SESSION['login_user_id']);
-
-if (isset($_POST['body']) && !empty($_SESSION['login_user_id'])) {
-  // POSTで送られてくるフォームパラメータ body がある かつ ログイン状態 の場合
-  
-  $image_filename = null;
-  if (!empty($_POST['image_base64'])) {
-    $image_filename = $ImageService->upload($_POST['image_base64']);
-    header("HTTP/1.1 302 Found");
-    header("Location: ./icon.php");
-    return;
-  }
-
-  // insertする
-  $MessageService->create_message($user['id'], $_POST['body'], $image_filename);
-  header("HTTP/1.1 302 Found");
-  header("Location: ./truther.php");
-  return;
-}
-
 
 // 投稿データを取得。紐づく会員情報も結合し同時に取得する。
 $messages = $MessageService->get_all_messages_with_users();
+
 // bodyのHTMLを出力するための関数を用意する
 function bodyFilter (string $body): string
 {
@@ -48,19 +24,9 @@ function bodyFilter (string $body): string
 ?>
 
 <?php if(empty($_SESSION['login_user_id'])): ?>
-  投稿するには<a href="/login.php">ログイン</a>が必要です。
+  <a href="/login.php">ログイン</a>して自分のタイムラインを閲覧しましょう！
 <?php else: ?>
-  <?= $user['name']?>,おかえりなさい！ (<a href="/setting/index.php">設定画面はこちら</a>)
-  <!-- フォームのPOST先はこのファイル自身にする -->
-  <form method="POST" action="./truther.php"><!-- enctypeは外しておきましょう -->
-    <textarea name="body" required></textarea>
-    <div style="margin: 1em 0;">
-      <input type="file" accept="image/*" name="image" id="imageInput">
-    </div>
-    <input id="imageBase64Input" type="hidden" name="image_base64"><!-- base64を送る用のinput (非表示) -->
-    <canvas id="imageCanvas" style="display: none;"></canvas><!-- 画像縮小に使うcanvas (非表示) -->
-    <button type="submit">送信</button>
-  </form>
+  <a href="/timeline.php">タイムラインはこちら</a>
 <?php endif; ?>
 <hr>
 

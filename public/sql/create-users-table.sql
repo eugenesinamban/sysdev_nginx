@@ -1,7 +1,0 @@
-CREATE TABLE `users` (
-    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `name` TEXT NOT NULL,
-    `email` TEXT NOT NULL,
-    `password` TEXT NOT NULL,
-    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP
-);
