@@ -14,7 +14,7 @@ $user = $UserService->find_by_id($_SESSION['login_user_id']);
 
 ?>
 
-<a href="/truther.php">掲示板に戻る</a>
+<a href="/index.php">掲示板に戻る</a>
 
 <h1>設定画面</h1>
 
