@@ -22,6 +22,5 @@ u
 - DBのinitialization
 
 ```bash
-db-bash
 docker exec -i mysql mysql techc < sql/init.sql
 ```
