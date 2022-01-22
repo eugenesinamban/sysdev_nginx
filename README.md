@@ -24,3 +24,6 @@ u
 ```bash
 docker exec -i mysql mysql techc < sql/init.sql
 ```
+
+- DB構造
+[link](sql/README.md)

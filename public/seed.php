@@ -7,7 +7,7 @@ require_once('./libs/AuthService.php');
 $AuthService = new AuthService(new UserRepository());
 $MessageService = new MessageService(new MessageRepository());
 $seed_user = [
-    // 'Jacob' => 'Smith',
+//   'Jacob' => 'Smith',
 //   'Michael' => 'Johnson',
 //   'Ethan' => 'Williams',
 //   'Joshua' => 'Brown',
